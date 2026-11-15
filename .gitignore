@@ -1,0 +1,80 @@
+# ==============================================================================
+# MediSlot — Comprehensive .gitignore for Java / Spring Boot / Maven
+# ==============================================================================
+
+# 1. Maven Build Artifacts & Output
+target/
+*.war
+*.ear
+*.jar
+*.class
+*.nar
+*.zip
+*.tar.gz
+*.rar
+
+# Maven Temporary Files & Release Backups
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# 2. Logs & Runtime Diagnostics
+*.log
+logs/
+log/
+hs_err_pid*
+replay_pid*
+
+# 3. IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+.idea_modules/
+
+# 4. Eclipse IDE
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+bin/
+
+# 5. Visual Studio Code
+.vscode/
+*.code-workspace
+.history/
+
+# 6. Operating System Specific Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# 7. Local Environment & Secret Overrides
+# Keep application.properties.example tracked, ignore local custom overrides if any
+*.local.properties
+.env
+.env.local
+
+# 8. Temporary & Scratch Files
+scratch/
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+*~
