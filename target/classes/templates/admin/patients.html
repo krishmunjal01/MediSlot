@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Patient Directory')}"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('patients')}"></aside>
+
+    <div class="main-wrapper">
+        <header th:replace="~{fragments/topbar :: topbar('Patient Demographic Registry', 'Admin / Patients')}"></header>
+
+        <main class="content-container">
+            <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+            <div class="surface-card" style="padding: 16px 20px; margin-bottom: 20px;">
+                <form th:action="@{/admin/patients}" method="get" style="display: flex; gap: 12px; align-items: center;">
+                    <div style="flex: 1;">
+                        <input type="text" name="search" th:value="${searchTerm}" class="form-control" placeholder="Search patient by name, patient code, phone, or email...">
+                    </div>
+                    <button type="submit" class="btn-secondary">Search</button>
+                    <a th:href="@{/admin/patients}" class="btn-secondary" style="padding: 8px 12px;" title="Reset filter">Reset</a>
+                </form>
+            </div>
+
+            <div class="surface-card">
+                <div class="table-container">
+                    <table class="medislot-table">
+                        <thead>
+                            <tr>
+                                <th>Patient Code</th>
+                                <th>Full Name</th>
+                                <th>Contact Phone</th>
+                                <th>Email</th>
+                                <th>Age / Gender</th>
+                                <th>Blood Group</th>
+                                <th>Registration Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="p : ${patients}">
+                                <td><strong th:text="${p.patientCode}">PAT-1001</strong></td>
+                                <td th:text="${p.fullName}">Eleanor Vance</td>
+                                <td th:text="${p.phone}">+1 (555) 301-8891</td>
+                                <td th:text="${p.email}">eleanor@example.com</td>
+                                <td th:text="${p.age + ' yrs / ' + p.gender}">32 yrs / Female</td>
+                                <td th:text="${p.bloodGroup != null ? p.bloodGroup : '—'}">A+</td>
+                                <td th:text="${#temporals.format(p.registrationDate, 'dd MMM yyyy')}">15 Nov 2026</td>
+                                <td>
+                                    <a th:href="@{/admin/patients/{id}(id=${p.patientId})}" class="btn-secondary btn-sm">View Medical Record</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="empty-state" th:if="${#lists.isEmpty(patients)}">
+                    <h3>No patient records found</h3>
+                    <p>Try searching with another keyword or patient code.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>

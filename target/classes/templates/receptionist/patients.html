@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Patient Directory')}"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('patients')}"></aside>
+
+    <div class="main-wrapper">
+        <header th:replace="~{fragments/topbar :: topbar('Front Desk Patient Search', 'Reception / Patients')}"></header>
+
+        <main class="content-container">
+            <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+            <div class="surface-card" style="padding: 16px 20px; margin-bottom: 20px;">
+                <form th:action="@{/receptionist/patients}" method="get" style="display: flex; gap: 12px; align-items: center;">
+                    <div style="flex: 1;">
+                        <input type="text" name="search" th:value="${searchTerm}" class="form-control" placeholder="Search by name, patient code, phone number, or email...">
+                    </div>
+                    <button type="submit" class="btn-secondary">Search</button>
+                    <a th:href="@{/receptionist/patients}" class="btn-secondary" style="padding: 8px 12px;">Reset</a>
+                    <a th:href="@{/receptionist/patients/new}" class="btn-primary" style="margin-left: auto;">+ Register Walk-In</a>
+                </form>
+            </div>
+
+            <div class="surface-card">
+                <div class="table-container">
+                    <table class="medislot-table">
+                        <thead>
+                            <tr>
+                                <th>Patient Code</th>
+                                <th>Full Name</th>
+                                <th>Contact Phone</th>
+                                <th>Email</th>
+                                <th>DOB / Age</th>
+                                <th>Blood Group</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="p : ${patients}">
+                                <td><strong th:text="${p.patientCode}">PAT-1001</strong></td>
+                                <td style="font-weight: 600;" th:text="${p.fullName}">Eleanor Vance</td>
+                                <td th:text="${p.phone}">+1 555-0100</td>
+                                <td th:text="${p.email}">eleanor@example.com</td>
+                                <td th:text="${#temporals.format(p.dateOfBirth, 'dd MMM yyyy') + ' (' + p.age + ' yrs)'}">1992 (32 yrs)</td>
+                                <td th:text="${p.bloodGroup != null ? p.bloodGroup : '—'}">A+</td>
+                                <td>
+                                    <div style="display: flex; gap: 6px;">
+                                        <a th:href="@{/receptionist/book(patientId=${p.patientId})}" class="btn-primary btn-sm">Book</a>
+                                        <a th:href="@{/receptionist/patients/{id}(id=${p.patientId})}" class="btn-secondary btn-sm">Record</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>

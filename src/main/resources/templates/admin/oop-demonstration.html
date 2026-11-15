@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('OOP & Spring Bean Demonstration')}"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('oop-demo')}"></aside>
+
+    <div class="main-wrapper">
+        <header th:replace="~{fragments/topbar :: topbar('Academic OOP Architecture & Bean Lifecycle', 'Admin / Case Study / OOP')}"></header>
+
+        <main class="content-container">
+            <div class="viva-box" style="margin-bottom: 24px;">
+                <h2 class="serif-heading" style="font-size: 20px; color: var(--primary-accent); margin-bottom: 6px;">
+                    Academic Demonstration: POJO vs. Spring-Managed Bean
+                </h2>
+                <p style="font-size: 13.5px; color: var(--text-primary);">
+                    This section demonstrates the fundamental difference between standard unmanaged Java objects (POJOs)
+                    and Spring-managed IoC container singletons (Beans), as required by the faculty case study.
+                </p>
+            </div>
+
+            <!-- Side by Side Comparison Grid -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px;">
+                <!-- Column 1: POJO -->
+                <div class="surface-card">
+                    <div class="card-header-clean">
+                        <div>
+                            <span class="status-pill status-available" style="margin-bottom: 4px;">Standard Java</span>
+                            <h3 class="serif-heading" style="font-size: 18px;">Plain Old Java Object (POJO)</h3>
+                        </div>
+                    </div>
+
+                    <div style="font-size: 13px; margin-bottom: 16px;">
+                        <p style="margin-bottom: 6px;"><strong>Class:</strong> <code>com.medislot.model.AppointmentSummaryPOJO</code></p>
+                        <p style="margin-bottom: 6px;"><strong>Creation:</strong> Instantiated explicitly using <code>new</code> keyword in memory.</p>
+                        <p><strong>Lifecycle:</strong> Standard JVM Heap allocation, garbage-collected when out of scope.</p>
+                    </div>
+
+                    <div style="background-color: #FAFAF7; border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 16px;">
+                        <h4 style="font-size: 12.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px;">Live Instantiated POJO Instance:</h4>
+                        <div style="font-size: 13px; line-height: 1.6;">
+                            <div><strong>Reference:</strong> <span th:text="${pojoInstance.reference}">Ref</span></div>
+                            <div><strong>Patient:</strong> <span th:text="${pojoInstance.patientName}">Eleanor</span></div>
+                            <div><strong>Doctor:</strong> <span th:text="${'Dr. ' + pojoInstance.doctorName + ' (' + pojoInstance.department + ')'}">Dr. Arjun</span></div>
+                            <div><strong>Status:</strong> <span th:text="${pojoInstance.status}">CONFIRMED</span></div>
+                            <div><strong>Summary Output:</strong> <em th:text="${pojoSummary}">Summary</em></div>
+                        </div>
+                    </div>
+
+                    <h4 style="font-size: 12px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;">Code Sample:</h4>
+                    <pre class="viva-code-snippet"><code>// Instantiated explicitly by application code
+AppointmentSummaryPOJO pojo = new AppointmentSummaryPOJO(
+    "APT-20261115-DEMO",
+    "Eleanor Vance",
+    "Arjun Mehta",
+    "Cardiology",
+    LocalDate.now(),
+    LocalTime.of(10, 30),
+    "CONFIRMED",
+    750.00
+);
+// Domain method encapsulated within POJO
+String summary = pojo.getFormattedSummary();</code></pre>
+                </div>
+
+                <!-- Column 2: Spring Bean -->
+                <div class="surface-card">
+                    <div class="card-header-clean">
+                        <div>
+                            <span class="status-pill status-confirmed" style="margin-bottom: 4px;">Inversion of Control</span>
+                            <h3 class="serif-heading" style="font-size: 18px;">Spring-Managed Bean</h3>
+                        </div>
+                    </div>
+
+                    <div style="font-size: 13px; margin-bottom: 16px;">
+                        <p style="margin-bottom: 6px;"><strong>Class:</strong> <code th:text="${springBeanClassName}">com.medislot.service.impl.AppointmentServiceImpl</code></p>
+                        <p style="margin-bottom: 6px;"><strong>Creation:</strong> Created & managed by Spring IoC Container via <code>@Service</code>.</p>
+                        <p><strong>Lifecycle:</strong> Singleton managed throughout application context, wrapped with CGLIB proxy for <code>@Transactional</code>.</p>
+                    </div>
+
+                    <div style="background-color: #FAFAF7; border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 16px;">
+                        <h4 style="font-size: 12.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px;">Live Spring Bean Properties:</h4>
+                        <div style="font-size: 13px; line-height: 1.6;">
+                            <div><strong>Bean Type:</strong> <span>Service Component Singleton</span></div>
+                            <div><strong>Injection Mode:</strong> <span>Constructor Dependency Injection</span></div>
+                            <div><strong>Transactional Proxy:</strong> <span>Active (Isolation = REPEATABLE_READ)</span></div>
+                            <div><strong>Pessimistic Locking:</strong> <span>Integrated via SELECT FOR UPDATE</span></div>
+                        </div>
+                    </div>
+
+                    <h4 style="font-size: 12px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;">Code Sample:</h4>
+                    <pre class="viva-code-snippet"><code>@Service
+public class AppointmentServiceImpl implements AppointmentService {
+
+    // Constructor-based Dependency Injection
+    public AppointmentServiceImpl(
+        AppointmentRepository aptRepo,
+        AppointmentSlotRepository slotRepo,
+        AuditService auditService) { ... }
+
+    @Override
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public Appointment bookAppointment(...) { ... }
+}</code></pre>
+                </div>
+            </div>
+
+            <!-- OOP Concepts Implemented in MediSlot -->
+            <div class="surface-card">
+                <div class="card-header-clean">
+                    <h3 class="serif-heading" style="font-size: 17px;">Core Object-Oriented Programming Pillars in MediSlot</h3>
+                </div>
+
+                <div class="table-container">
+                    <table class="medislot-table">
+                        <thead>
+                            <tr>
+                                <th>OOP Principle</th>
+                                <th>Implementation in MediSlot</th>
+                                <th>Live Architecture Evidence</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Encapsulation</strong></td>
+                                <td>Private fields with controlled getters/setters and domain state-transition validation.</td>
+                                <td><code>Patient.java</code>, <code>Doctor.java</code>, <code>AppointmentStatus.java</code> (e.g. <code>canBeCancelled()</code>)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Inheritance</strong></td>
+                                <td>Abstract base <code>User</code> class extended by 4 specialized system actors.</td>
+                                <td><code>User</code> → <code>Admin</code>, <code>Doctor</code>, <code>Receptionist</code>, <code>Patient</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Polymorphism</strong></td>
+                                <td>Subclasses override abstract polymorphic methods providing distinct behavior.</td>
+                                <td><code>getDashboardUrl()</code>, <code>getRoleDescription()</code> overridden across all 4 user classes</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Abstraction</strong></td>
+                                <td>High-level interfaces decouple business services from database persistence details.</td>
+                                <td><code>AppointmentService</code>, <code>PatientRepository</code>, <code>DoctorRepository</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Method Overloading</strong></td>
+                                <td>Methods sharing a name but differentiated by parameter types for clean API design.</td>
+                                <td><code>findById(Long)</code> vs <code>findByPatientCode(String)</code> in <code>TraditionalPatientJdbcRepository</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Custom Exceptions</strong></td>
+                                <td>Meaningful exception hierarchy with centralized HTTP translation.</td>
+                                <td><code>SlotUnavailableException</code>, <code>DuplicateBookingException</code> with <code>@ControllerAdvice</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>

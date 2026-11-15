@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Page Not Found')}"></head>
+<body style="background-color: var(--bg-main); display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px;">
+<div class="surface-card" style="max-width: 480px; text-align: center; padding: 40px 32px;">
+    <div style="width: 50px; height: 50px; border-radius: 50%; background-color: var(--secondary-accent); color: var(--primary-accent); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+        <svg style="width: 24px; height: 24px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    </div>
+    <h2 class="serif-heading" style="font-size: 22px; margin-bottom: 8px;">Resource Not Found (404)</h2>
+    <p th:text="${errorMessage != null ? errorMessage : 'The requested record, doctor, or route could not be found.'}" style="font-size: 13.5px; margin-bottom: 24px;">Not found.</p>
+    <a th:href="@{/}" class="btn-primary" style="justify-content: center;">Return to Application</a>
+</div>
+</body>
+</html>

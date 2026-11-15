@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Hospital Operational Reports')}"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('reports')}"></aside>
+
+    <div class="main-wrapper">
+        <header th:replace="~{fragments/topbar :: topbar('Operational Analytics & Reporting', 'Admin / Reports')}"></header>
+
+        <main class="content-container">
+            <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+            <!-- Aggregate Metrics -->
+            <div class="metrics-row">
+                <div class="metric-item">
+                    <div class="metric-label">Completed Consultations</div>
+                    <div class="metric-value" th:text="${stats.completedAppointments}">0</div>
+                    <div class="metric-sub">With documented diagnoses</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-label">Cancelled Rate</div>
+                    <div class="metric-value" th:text="${stats.cancelledAppointments}">0</div>
+                    <div class="metric-sub">Freed slots returned to pool</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-label">Registered Patients</div>
+                    <div class="metric-value" th:text="${stats.totalRegisteredPatients}">0</div>
+                    <div class="metric-sub">Demographic profiles</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-label">Active Clinical Doctors</div>
+                    <div class="metric-value" th:text="${stats.activeDoctors}">0</div>
+                    <div class="metric-sub">Accepting bookings</div>
+                </div>
+            </div>
+
+            <!-- Doctor Performance Summary -->
+            <div class="surface-card">
+                <div class="card-header-clean">
+                    <div>
+                        <h2 class="serif-heading" style="font-size: 18px;">Doctor Consultation & Appointment Performance</h2>
+                        <p style="font-size: 12.5px;">Live SQL aggregate query results grouped by doctor and department</p>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="medislot-table">
+                        <thead>
+                            <tr>
+                                <th>Doctor Name</th>
+                                <th>Specialization</th>
+                                <th>Department</th>
+                                <th>Total Bookings</th>
+                                <th>Completed</th>
+                                <th>Cancelled</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="doc : ${doctorPerformance}">
+                                <td><strong th:text="${'Dr. ' + doc.doctor_name}">Dr. Arjun Mehta</strong></td>
+                                <td th:text="${doc.specialization}">Cardiology</td>
+                                <td th:text="${doc.department_name}">Cardiology</td>
+                                <td><span style="font-weight: 600;" th:text="${doc.total_appointments}">12</span></td>
+                                <td><span class="status-pill status-completed" th:text="${doc.completed_count != null ? doc.completed_count : 0}">8</span></td>
+                                <td><span class="status-pill status-cancelled" th:text="${doc.cancelled_count != null ? doc.cancelled_count : 0}">1</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Department Distribution Breakdown -->
+            <div class="surface-card">
+                <div class="card-header-clean">
+                    <h2 class="serif-heading" style="font-size: 18px;">Department Consultation Volume</h2>
+                </div>
+
+                <div class="table-container">
+                    <table class="medislot-table">
+                        <thead>
+                            <tr>
+                                <th>Department Name</th>
+                                <th>Total Scheduled & Past Consultations</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="dept : ${departmentData}">
+                                <td><strong th:text="${dept.department_name}">Cardiology</strong></td>
+                                <td><span style="font-weight: 600;" th:text="${dept.appointment_count}">15</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>

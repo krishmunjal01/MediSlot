@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Book Appointment')}"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('book')}"></aside>
+
+    <div class="main-wrapper">
+        <header th:replace="~{fragments/topbar :: topbar('Schedule a Doctor Consultation', 'Patient / Book')}"></header>
+
+        <main class="content-container" style="max-width: 820px;">
+            <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+            <!-- Booking Stepper Header -->
+            <div class="surface-card" style="padding: 24px 28px;">
+                <div class="card-header-clean">
+                    <div>
+                        <h2 class="serif-heading" style="font-size: 20px;">Appointment Booking Wizard</h2>
+                        <p style="font-size: 13px;">Select your preferred clinical specialist, date, and available time slot.</p>
+                    </div>
+                </div>
+
+                <form th:action="@{/patient/book}" th:object="${bookingRequest}" method="post">
+                    <!-- Session patient ID -->
+                    <input type="hidden" th:field="*{patientId}">
+                    <!-- Hidden input populated by clicking a slot button -->
+                    <input type="hidden" id="selectedSlotIdInput" th:field="*{slotId}">
+
+                    <!-- Step 1 & 2: Doctor Selection -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px;">
+                        <div class="form-group">
+                            <label class="form-label">Medical Specialist / Doctor *</label>
+                            <select id="bookingDoctorSelect" th:field="*{doctorId}" class="form-select" required>
+                                <option value="">Select a Doctor</option>
+                                <option th:each="doc : ${doctors}"
+                                        th:value="${doc.doctorId}"
+                                        th:text="${'Dr. ' + doc.fullName + ' — ' + doc.specialization + ' ($' + doc.consultationFee + ')'}">Dr. Arjun</option>
+                            </select>
+                            <div class="form-error" th:if="${#fields.hasErrors('doctorId')}" th:errors="*{doctorId}"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Consultation Date *</label>
+                            <input type="date" id="bookingDateInput" th:field="*{appointmentDate}" class="form-control"
+                                   th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}" required>
+                            <div class="form-error" th:if="${#fields.hasErrors('appointmentDate')}" th:errors="*{appointmentDate}"></div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Interactive Dynamic Slot Grid -->
+                    <div class="form-group" style="margin-top: 10px;">
+                        <label class="form-label">Select Consultation Time Slot *</label>
+                        <div id="slotSelectionContainer" style="min-height: 80px; background-color: #FAFAF7; border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 18px;">
+                            <p class="form-text">Please pick a doctor and date above to view real-time available appointment slots.</p>
+                        </div>
+                        <div class="form-error" th:if="${#fields.hasErrors('slotId')}" th:errors="*{slotId}"></div>
+                    </div>
+
+                    <!-- Step 4: Optional Notes -->
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label class="form-label">Reason for Visit or Primary Symptoms (Optional)</label>
+                        <textarea th:field="*{reasonForVisit}" class="form-control" rows="2" placeholder="e.g. Annual health check-up, persistent cough for 4 days..."></textarea>
+                    </div>
+
+                    <!-- Review & Reserve -->
+                    <div style="margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-size: 12.5px; color: var(--text-secondary);">
+                            Protected by transactional concurrency locking to guarantee zero duplicate bookings.
+                        </div>
+                        <div style="display: flex; gap: 12px;">
+                            <a th:href="@{/patient/dashboard}" class="btn-secondary">Cancel</a>
+                            <button type="submit" class="btn-primary" style="padding: 10px 24px;">
+                                Confirm & Reserve Slot
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/medislot.js}"></script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Doctor Schedules')}"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('schedules')}"></aside>
+
+    <div class="main-wrapper">
+        <header th:replace="~{fragments/topbar :: topbar('Doctor Schedules & Slot Generation', 'Admin / Schedules')}"></header>
+
+        <main class="content-container">
+            <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+                <!-- Existing Schedules -->
+                <div class="surface-card">
+                    <div class="card-header-clean">
+                        <h2 class="serif-heading" style="font-size: 18px;">Active Weekly Schedules</h2>
+                        <span class="status-pill status-available" th:text="${schedules.size() + ' Configured'}">0 Configured</span>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="medislot-table">
+                            <thead>
+                                <tr>
+                                    <th>Doctor</th>
+                                    <th>Day of Week</th>
+                                    <th>Hours</th>
+                                    <th>Slot Length</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="s : ${schedules}">
+                                    <td><strong th:text="${'Dr. ' + s.doctorName}">Dr. Arjun Mehta</strong></td>
+                                    <td><span style="font-weight: 500;" th:text="${s.dayOfWeek}">MONDAY</span></td>
+                                    <td th:text="${#temporals.format(s.startTime, 'HH:mm') + ' - ' + #temporals.format(s.endTime, 'HH:mm')}">09:00 - 13:00</td>
+                                    <td th:text="${s.slotDurationMinutes + ' mins'}">30 mins</td>
+                                    <td>
+                                        <span class="status-pill"
+                                              th:classappend="${s.active ? 'status-confirmed' : 'status-cancelled'}"
+                                              th:text="${s.active ? 'Active' : 'Inactive'}">Active</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Add Schedule & Generate Slots Form -->
+                <div>
+                    <div class="surface-card">
+                        <div class="card-header-clean">
+                            <h3 class="serif-heading" style="font-size: 17px;">Configure Shift & Slots</h3>
+                        </div>
+
+                        <form th:action="@{/admin/schedules/save}" th:object="${scheduleForm}" method="post">
+                            <div class="form-group">
+                                <label class="form-label">Attending Doctor *</label>
+                                <select th:field="*{doctorId}" class="form-select" required>
+                                    <option value="">Select Doctor</option>
+                                    <option th:each="doc : ${doctors}"
+                                            th:value="${doc.doctorId}"
+                                            th:text="${'Dr. ' + doc.fullName + ' (' + doc.specialization + ')'}">Dr. Arjun</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Working Day *</label>
+                                <select th:field="*{dayOfWeek}" class="form-select" required>
+                                    <option value="MONDAY">Monday</option>
+                                    <option value="TUESDAY">Tuesday</option>
+                                    <option value="WEDNESDAY">Wednesday</option>
+                                    <option value="THURSDAY">Thursday</option>
+                                    <option value="FRIDAY">Friday</option>
+                                    <option value="SATURDAY">Saturday</option>
+                                    <option value="SUNDAY">Sunday</option>
+                                </select>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                <div class="form-group">
+                                    <label class="form-label">Start Time *</label>
+                                    <input type="time" th:field="*{startTime}" class="form-control" value="09:00" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">End Time *</label>
+                                    <input type="time" th:field="*{endTime}" class="form-control" value="13:00" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Slot Duration (Minutes) *</label>
+                                <select th:field="*{slotDurationMinutes}" class="form-select">
+                                    <option value="15">15 minutes</option>
+                                    <option value="20">20 minutes</option>
+                                    <option value="30" selected>30 minutes (Standard)</option>
+                                    <option value="45">45 minutes</option>
+                                    <option value="60">60 minutes</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer;">
+                                    <input type="checkbox" th:field="*{generateSlotsImmediately}" checked>
+                                    <span>Automatically generate slots for next 2 weeks</span>
+                                </label>
+                            </div>
+
+                            <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">
+                                Save Shift & Generate Slots
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Manual Slot Batch Generator -->
+                    <div class="surface-card">
+                        <div class="card-header-clean">
+                            <h3 class="serif-heading" style="font-size: 16px;">Batch Slot Generator</h3>
+                        </div>
+                        <form th:action="@{/admin/schedules/generate}" method="post">
+                            <div class="form-group">
+                                <label class="form-label">Doctor</label>
+                                <select name="doctorId" class="form-select" required>
+                                    <option th:each="doc : ${doctors}"
+                                            th:value="${doc.doctorId}"
+                                            th:text="${'Dr. ' + doc.fullName}">Doctor</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Generate Forward For</label>
+                                <select name="weeksAhead" class="form-select">
+                                    <option value="2">Next 2 Weeks</option>
+                                    <option value="4">Next 4 Weeks (Month)</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn-secondary" style="width: 100%; justify-content: center;">
+                                Generate Slots Now
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>
+

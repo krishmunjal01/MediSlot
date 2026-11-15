@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('My Appointments')}"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('appointments')}"></aside>
+
+    <div class="main-wrapper">
+        <header th:replace="~{fragments/topbar :: topbar('Assigned Consultations', 'Doctor / Appointments')}"></header>
+
+        <main class="content-container">
+            <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+            <div class="surface-card" style="padding: 16px 20px; margin-bottom: 20px;">
+                <form th:action="@{/doctor/appointments}" method="get" style="display: flex; gap: 12px; align-items: center;">
+                    <div style="width: 220px;">
+                        <input type="date" name="date" th:value="${selectedDate}" class="form-control">
+                    </div>
+                    <button type="submit" class="btn-secondary">Filter by Date</button>
+                    <a th:href="@{/doctor/appointments}" class="btn-secondary" style="padding: 8px 12px;" title="Show all dates">Show All</a>
+                </form>
+            </div>
+
+            <div class="surface-card">
+                <div class="card-header-clean">
+                    <h2 class="serif-heading" style="font-size: 18px;">Patient Appointment List</h2>
+                    <span class="status-pill status-confirmed" th:text="${appointments.size() + ' Bookings'}">0 Bookings</span>
+                </div>
+
+                <div class="table-container" th:if="${not #lists.isEmpty(appointments)}">
+                    <table class="medislot-table">
+                        <thead>
+                            <tr>
+                                <th>Ref #</th>
+                                <th>Date & Time</th>
+                                <th>Patient Name</th>
+                                <th>Contact</th>
+                                <th>Reason</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="apt : ${appointments}">
+                                <td><strong th:text="${apt.appointmentReference}">APT-001</strong></td>
+                                <td>
+                                    <div style="font-weight: 500;" th:text="${#temporals.format(apt.appointmentDate, 'dd MMM yyyy')}">15 Nov 2026</div>
+                                    <div style="font-size: 11.5px; color: var(--text-muted);" th:text="${#temporals.format(apt.startTime, 'HH:mm') + ' - ' + #temporals.format(apt.endTime, 'HH:mm')}">09:00 - 09:30</div>
+                                </td>
+                                <td>
+                                    <div style="font-weight: 600;" th:text="${apt.patientName}">Eleanor Vance</div>
+                                    <div style="font-size: 11.5px; color: var(--text-muted);" th:text="${apt.patientCode}">PAT-1001</div>
+                                </td>
+                                <td th:text="${apt.patientPhone}">+1 555-0100</td>
+                                <td th:text="${apt.reasonForVisit != null ? apt.reasonForVisit : 'Routine follow-up'}">Routine</td>
+                                <td>
+                                    <span class="status-pill"
+                                          th:classappend="'status-' + ${#strings.toLowerCase(#strings.replace(apt.status.name(), '_', '-'))}"
+                                          th:text="${apt.status.label}">Status</span>
+                                </td>
+                                <td>
+                                    <a th:href="@{/doctor/appointments/{id}(id=${apt.appointmentId})}" class="btn-primary btn-sm">Consult & Record</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="empty-state" th:if="${#lists.isEmpty(appointments)}">
+                    <p>No appointments match the selected filter.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>

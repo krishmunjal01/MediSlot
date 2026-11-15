@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Clinical Consultation')}"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('appointments')}"></aside>
+
+    <div class="main-wrapper">
+        <header th:replace="~{fragments/topbar :: topbar('Patient Clinical Consultation', 'Doctor / Appointments / Details')}"></header>
+
+        <main class="content-container">
+            <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+            <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                <a th:href="@{/doctor/appointments}" class="btn-secondary btn-sm">← Back to My Appointments</a>
+                <div style="display: flex; gap: 8px;">
+                    <form th:action="@{/doctor/appointments/{id}/status(id=${appointment.appointmentId})}" method="post" style="display: inline;">
+                        <input type="hidden" name="status" value="CONFIRMED">
+                        <button type="submit" class="btn-secondary btn-sm" th:disabled="${appointment.status.name() == 'CONFIRMED'}">Confirm</button>
+                    </form>
+                    <form th:action="@{/doctor/appointments/{id}/status(id=${appointment.appointmentId})}" method="post" style="display: inline;">
+                        <input type="hidden" name="status" value="NO_SHOW">
+                        <button type="submit" class="btn-secondary btn-sm" th:disabled="${appointment.status.name() == 'COMPLETED'}">Mark No-Show</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Patient & Appointment Summary Card -->
+            <div class="surface-card">
+                <div class="card-header-clean">
+                    <div>
+                        <h2 class="serif-heading" style="font-size: 20px;" th:text="${patient.fullName}">Patient Name</h2>
+                        <p style="font-size: 13px;" th:text="${'Patient Code: ' + patient.patientCode + ' • Ref: ' + appointment.appointmentReference}">Code</p>
+                    </div>
+                    <span class="status-pill"
+                          th:classappend="'status-' + ${#strings.toLowerCase(#strings.replace(appointment.status.name(), '_', '-'))}"
+                          th:text="${appointment.status.label}">Status</span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; font-size: 13px;">
+                    <div>
+                        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Consultation Slot</div>
+                        <div style="font-weight: 500; margin-top: 2px;"
+                             th:text="${#temporals.format(appointment.appointmentDate, 'dd MMM yyyy') + ' at ' + #temporals.format(appointment.startTime, 'HH:mm')}">Date & Time</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Age / Gender</div>
+                        <div style="font-weight: 500; margin-top: 2px;" th:text="${patient.age + ' yrs / ' + patient.gender}">32 yrs / Female</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Blood Group</div>
+                        <div style="font-weight: 500; margin-top: 2px;" th:text="${patient.bloodGroup != null ? patient.bloodGroup : 'Not recorded'}">A+</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Contact Phone</div>
+                        <div style="font-weight: 500; margin-top: 2px;" th:text="${patient.phone}">Phone</div>
+                    </div>
+                    <div style="grid-column: 1 / -1;">
+                        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Chief Complaint / Reason for Visit</div>
+                        <div style="font-weight: 500; margin-top: 2px; color: var(--text-primary);"
+                             th:text="${appointment.reasonForVisit != null ? appointment.reasonForVisit : 'Standard periodic clinical review'}">Reason</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Clinical Consultation Entry Form -->
+            <div class="surface-card">
+                <div class="card-header-clean">
+                    <div>
+                        <h3 class="serif-heading" style="font-size: 18px;">Medical Consultation Record</h3>
+                        <p style="font-size: 12.5px;">Document diagnosis and prescribe medication. Saving automatically completes this appointment.</p>
+                    </div>
+                    <span th:if="${existingRecord != null}" class="status-pill status-completed">Completed Record</span>
+                </div>
+
+                <form th:action="@{/doctor/appointments/{id}/record(id=${appointment.appointmentId})}" th:object="${recordForm}" method="post">
+                    <input type="hidden" th:field="*{recordId}">
+
+                    <div class="form-group">
+                        <label class="form-label">Presenting Symptoms & Clinical Observations</label>
+                        <textarea th:field="*{symptoms}" class="form-control" rows="2" placeholder="e.g. Mild chest tightness on exertion, shortness of breath, blood pressure 135/85 mmHg..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Clinical Diagnosis *</label>
+                        <input type="text" th:field="*{diagnosis}" class="form-control" placeholder="e.g. Essential Stage 1 Hypertension with mild sinus tachycardia" required>
+                        <div class="form-error" th:if="${#fields.hasErrors('diagnosis')}" th:errors="*{diagnosis}"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Prescription & Dosage Instructions *</label>
+                        <textarea th:field="*{prescription}" class="form-control" rows="3" placeholder="1. Tab Telmisartan 40mg once daily after breakfast.&#10;2. Tab Metoprolol Succinate 25mg once daily at bedtime.&#10;3. Routine serum electrolyte profile." required></textarea>
+                        <div class="form-error" th:if="${#fields.hasErrors('prescription')}" th:errors="*{prescription}"></div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label class="form-label">Physician Notes & Lifestyle Advice</label>
+                            <input type="text" th:field="*{clinicalNotes}" class="form-control" placeholder="e.g. Low sodium diet, 30 min daily walking, record home BP weekly">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Recommended Follow-up Date</label>
+                            <input type="date" th:field="*{followUpDate}" class="form-control">
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 12px; margin-top: 16px;">
+                        <button type="submit" class="btn-primary">
+                            Save Medical Record & Complete Consultation
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Patient Prior Medical History -->
+            <div class="surface-card" th:if="${not #lists.isEmpty(patientHistory)}">
+                <div class="card-header-clean">
+                    <h3 class="serif-heading" style="font-size: 17px;">Patient Prior Visit History</h3>
+                    <span style="font-size: 12px; color: var(--text-muted);" th:text="${patientHistory.size() + ' Past notes'}">0 notes</span>
+                </div>
+
+                <div th:each="hist : ${patientHistory}" style="border-bottom: 1px solid var(--border-subtle); padding-bottom: 12px; margin-bottom: 12px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
+                        <strong>Dr. <span th:text="${hist.doctorName}">Doctor</span></strong>
+                        <span style="color: var(--text-muted);" th:text="${#temporals.format(hist.createdAt, 'dd MMM yyyy')}">Date</span>
+                    </div>
+                    <div style="font-size: 13px; color: var(--text-primary);"><span style="font-weight: 600;">Diagnosis:</span> <span th:text="${hist.diagnosis}">Diagnosis</span></div>
+                    <div style="font-size: 12.5px; color: var(--text-secondary); margin-top: 2px;"><span style="font-weight: 600;">Rx:</span> <span th:text="${hist.prescription}">Rx</span></div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>
+

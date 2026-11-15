@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Patient Clinical Record')}"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('patients')}"></aside>
+
+    <div class="main-wrapper">
+        <header th:replace="~{fragments/topbar :: topbar('Patient Clinical History', 'Admin / Patients / Record')}"></header>
+
+        <main class="content-container">
+            <div style="margin-bottom: 20px;">
+                <a th:href="@{/admin/patients}" class="btn-secondary btn-sm">← Back to Patient Directory</a>
+            </div>
+
+            <!-- Patient Demographics Card -->
+            <div class="surface-card">
+                <div class="card-header-clean">
+                    <div>
+                        <h2 class="serif-heading" style="font-size: 20px;" th:text="${patient.fullName}">Eleanor Vance</h2>
+                        <p style="font-size: 13px;" th:text="${'Patient Code: ' + patient.patientCode + ' • Registered on ' + #temporals.format(patient.registrationDate, 'dd MMMM yyyy')}">Code</p>
+                    </div>
+                    <span class="status-pill status-available">Active Patient</span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; font-size: 13.5px;">
+                    <div>
+                        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Date of Birth / Age</div>
+                        <div style="font-weight: 500; margin-top: 2px;" th:text="${#temporals.format(patient.dateOfBirth, 'dd MMM yyyy') + ' (' + patient.age + ' years old)'}">14 May 1992</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Gender / Blood Group</div>
+                        <div style="font-weight: 500; margin-top: 2px;" th:text="${patient.gender + ' • ' + (patient.bloodGroup != null ? patient.bloodGroup : 'Not recorded')}">Female • A+</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Contact Phone</div>
+                        <div style="font-weight: 500; margin-top: 2px;" th:text="${patient.phone}">+1 555-0100</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Emergency Contact</div>
+                        <div style="font-weight: 500; margin-top: 2px;" th:text="${patient.emergencyContact != null ? patient.emergencyContact : 'None provided'}">None</div>
+                    </div>
+                    <div style="grid-column: 1 / -1;">
+                        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Residential Address</div>
+                        <div style="font-weight: 500; margin-top: 2px;" th:text="${patient.address}">Address</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Appointment Visit History -->
+            <div class="surface-card">
+                <div class="card-header-clean">
+                    <h3 class="serif-heading" style="font-size: 17px;">Appointment History</h3>
+                    <span style="font-size: 12px; color: var(--text-muted);" th:text="${appointments.size() + ' Total visits'}">0 visits</span>
+                </div>
+
+                <div class="table-container" th:if="${not #lists.isEmpty(appointments)}">
+                    <table class="medislot-table">
+                        <thead>
+                            <tr>
+                                <th>Ref #</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Doctor</th>
+                                <th>Department</th>
+                                <th>Reason for Visit</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="apt : ${appointments}">
+                                <td><strong th:text="${apt.appointmentReference}">APT-001</strong></td>
+                                <td th:text="${#temporals.format(apt.appointmentDate, 'dd MMM yyyy')}">15 Nov 2026</td>
+                                <td th:text="${#temporals.format(apt.startTime, 'HH:mm')}">10:00</td>
+                                <td th:text="${'Dr. ' + apt.doctorName}">Dr. Arjun</td>
+                                <td th:text="${apt.departmentName}">Cardiology</td>
+                                <td th:text="${apt.reasonForVisit != null ? apt.reasonForVisit : 'Routine Consultation'}">Reason</td>
+                                <td>
+                                    <span class="status-pill"
+                                          th:classappend="'status-' + ${#strings.toLowerCase(#strings.replace(apt.status.name(), '_', '-'))}"
+                                          th:text="${apt.status.label}">Status</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="empty-state" th:if="${#lists.isEmpty(appointments)}">
+                    <p>No recorded appointments for this patient yet.</p>
+                </div>
+            </div>
+
+            <!-- Clinical Consultation Notes & Records -->
+            <div class="surface-card">
+                <div class="card-header-clean">
+                    <h3 class="serif-heading" style="font-size: 17px;">Clinical Consultation Records</h3>
+                    <span style="font-size: 12px; color: var(--text-muted);" th:text="${medicalRecords.size() + ' Clinical notes'}">0 notes</span>
+                </div>
+
+                <div th:each="rec : ${medicalRecords}" style="border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 18px; margin-bottom: 16px; background-color: #FAFAF7;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <div>
+                            <strong th:text="${'Attending Physician: Dr. ' + rec.doctorName}">Dr. Arjun Mehta</strong>
+                            <div style="font-size: 12px; color: var(--text-muted);" th:text="${'Appointment Ref: ' + rec.appointmentReference + ' • Date: ' + #temporals.format(rec.appointmentDate, 'dd MMM yyyy')}">Ref</div>
+                        </div>
+                        <span th:if="${rec.followUpDate}" class="status-pill status-confirmed" th:text="${'Follow-up: ' + #temporals.format(rec.followUpDate, 'dd MMM yyyy')}">Follow-up</span>
+                    </div>
+
+                    <div style="margin-bottom: 8px;">
+                        <span style="font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary);">Diagnosis:</span>
+                        <p style="margin-top: 2px; color: var(--text-primary); font-weight: 500;" th:text="${rec.diagnosis}">Diagnosis details</p>
+                    </div>
+
+                    <div style="margin-bottom: 8px;">
+                        <span style="font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary);">Prescription:</span>
+                        <p style="margin-top: 2px; color: var(--text-primary);" th:text="${rec.prescription}">Prescription details</p>
+                    </div>
+
+                    <div th:if="${rec.clinicalNotes}">
+                        <span style="font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary);">Clinical Notes:</span>
+                        <p style="margin-top: 2px; font-size: 13px;" th:text="${rec.clinicalNotes}">Clinical notes</p>
+                    </div>
+                </div>
+
+                <div class="empty-state" th:if="${#lists.isEmpty(medicalRecords)}">
+                    <p>No physician notes or prescriptions on file.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>

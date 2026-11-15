@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Access Denied')}"></head>
+<body style="background-color: var(--bg-main); display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px;">
+<div class="surface-card" style="max-width: 480px; text-align: center; padding: 40px 32px;">
+    <div style="width: 50px; height: 50px; border-radius: 50%; background-color: var(--danger-bg); color: var(--danger); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+        <svg style="width: 24px; height: 24px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+    </div>
+    <h2 class="serif-heading" style="font-size: 22px; margin-bottom: 8px;">Access Denied (403)</h2>
+    <p th:text="${errorMessage != null ? errorMessage : 'You do not have permission to view this resource.'}" style="font-size: 13.5px; margin-bottom: 24px;">Forbidden.</p>
+    <a th:href="@{/}" class="btn-primary" style="justify-content: center;">Return to Safety</a>
+</div>
+</body>
+</html>

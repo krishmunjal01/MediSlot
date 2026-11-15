@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Receptionist Dashboard')}"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('dashboard')}"></aside>
+
+    <div class="main-wrapper">
+        <header th:replace="~{fragments/topbar :: topbar('Front Desk & Patient Check-in', 'Reception / Dashboard')}"></header>
+
+        <main class="content-container">
+            <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+            <!-- Quick Stats -->
+            <div class="metrics-row">
+                <div class="metric-item">
+                    <div class="metric-label">Today's Total Schedule</div>
+                    <div class="metric-value" th:text="${todayAppointments.size()}">0</div>
+                    <div class="metric-sub">Bookings across all clinics</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-label">Checked-In Arrived</div>
+                    <div class="metric-value" th:text="${checkedInCount}">0</div>
+                    <div class="metric-sub">In clinic waiting area</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-label">Awaiting Arrival</div>
+                    <div class="metric-value" th:text="${pendingCheckInCount}">0</div>
+                    <div class="metric-sub">Pending check-in</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-label">Standby Waiting Queue</div>
+                    <div class="metric-value" th:text="${waitingListCount}">0</div>
+                    <div class="metric-sub">Eligible for released slots</div>
+                </div>
+            </div>
+
+            <!-- Quick Action Bar -->
+            <div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
+                <a th:href="@{/receptionist/patients/new}" class="btn-primary">
+                    <svg style="width: 16px; height: 16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                    Register Walk-In Patient
+                </a>
+                <a th:href="@{/receptionist/book}" class="btn-secondary">
+                    <svg style="width: 16px; height: 16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    Book New Appointment
+                </a>
+                <a th:href="@{/receptionist/patients}" class="btn-secondary">
+                    <svg style="width: 16px; height: 16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    Patient Directory Lookup
+                </a>
+            </div>
+
+            <!-- Daily Check-In Queue Table -->
+            <div class="surface-card">
+                <div class="card-header-clean">
+                    <div>
+                        <h2 class="serif-heading" style="font-size: 18px;">Today's Patient Arrival & Check-In Desk</h2>
+                        <p style="font-size: 12.5px;">Click Check-In when patient arrives at reception to notify attending physician.</p>
+                    </div>
+                </div>
+
+                <div class="table-container" th:if="${not #lists.isEmpty(todayAppointments)}">
+                    <table class="medislot-table">
+                        <thead>
+                            <tr>
+                                <th>Ref #</th>
+                                <th>Time</th>
+                                <th>Patient Name</th>
+                                <th>Doctor</th>
+                                <th>Department</th>
+                                <th>Current Status</th>
+                                <th>Reception Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="apt : ${todayAppointments}">
+                                <td><strong th:text="${apt.appointmentReference}">APT-001</strong></td>
+                                <td th:text="${#temporals.format(apt.startTime, 'HH:mm')}">09:00</td>
+                                <td>
+                                    <div style="font-weight: 600;" th:text="${apt.patientName}">Eleanor Vance</div>
+                                    <div style="font-size: 11.5px; color: var(--text-muted);" th:text="${apt.patientPhone}">+1 555-0100</div>
+                                </td>
+                                <td th:text="${'Dr. ' + apt.doctorName}">Dr. Arjun Mehta</td>
+                                <td th:text="${apt.departmentName}">Cardiology</td>
+                                <td>
+                                    <span class="status-pill"
+                                          th:classappend="'status-' + ${#strings.toLowerCase(#strings.replace(apt.status.name(), '_', '-'))}"
+                                          th:text="${apt.status.label}">Status</span>
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 6px;">
+                                        <!-- Fast Check-in Button -->
+                                        <form th:if="${apt.status.name() == 'BOOKED' or apt.status.name() == 'CONFIRMED'}"
+                                              th:action="@{/receptionist/appointments/{id}/check-in(id=${apt.appointmentId})}" method="post" style="display: inline;">
+                                            <button type="submit" class="btn-primary btn-sm">Check In</button>
+                                        </form>
+
+                                        <!-- Reschedule Link -->
+                                        <a th:if="${apt.status.canBeRescheduled()}"
+                                           th:href="@{/receptionist/appointments/{id}/reschedule(id=${apt.appointmentId})}"
+                                           class="btn-secondary btn-sm">Reschedule</a>
+
+                                        <!-- Cancel & Free Slot -->
+                                        <form th:if="${apt.status.canBeCancelled()}"
+                                              th:action="@{/receptionist/appointments/{id}/cancel(id=${apt.appointmentId})}" method="post" style="display: inline;"
+                                              onsubmit="return confirm('Cancel appointment and release slot back to open availability?');">
+                                            <button type="submit" class="btn-danger-outline btn-sm">Cancel</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="empty-state" th:if="${#lists.isEmpty(todayAppointments)}">
+                    <p>No appointments scheduled for today yet.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>

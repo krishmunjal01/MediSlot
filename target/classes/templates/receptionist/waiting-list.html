@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Waiting List Queue')}"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('waiting')}"></aside>
+
+    <div class="main-wrapper">
+        <header th:replace="~{fragments/topbar :: topbar('Front Desk Waiting Queue', 'Reception / Waiting List')}"></header>
+
+        <main class="content-container">
+            <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+                <!-- Current Active Waiting List -->
+                <div class="surface-card">
+                    <div class="card-header-clean">
+                        <h2 class="serif-heading" style="font-size: 18px;">Active Standby Patients</h2>
+                        <span class="status-pill status-available" th:text="${queue.size() + ' In Queue'}">0 In Queue</span>
+                    </div>
+
+                    <div class="table-container" th:if="${not #lists.isEmpty(queue)}">
+                        <table class="medislot-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Patient</th>
+                                    <th>Contact</th>
+                                    <th>Doctor</th>
+                                    <th>Target Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="w : ${queue}">
+                                    <td><span class="status-pill status-confirmed" th:text="${'#' + w.queuePosition}">#1</span></td>
+                                    <td style="font-weight: 600;" th:text="${w.patientName}">Eleanor</td>
+                                    <td th:text="${w.patientPhone}">+1 555-0100</td>
+                                    <td th:text="${'Dr. ' + w.doctorName}">Dr. Arjun</td>
+                                    <td th:text="${#temporals.format(w.requestedDate, 'dd MMM yyyy')}">Date</td>
+                                    <td>
+                                        <div style="display: flex; gap: 6px;">
+                                            <form th:action="@{/receptionist/waiting-list/{id}/notify(id=${w.waitingId})}" method="post" style="display: inline;">
+                                                <button type="submit" class="btn-primary btn-sm">Notify</button>
+                                            </form>
+                                            <a th:href="@{/receptionist/book(patientId=${w.patientId})}" class="btn-secondary btn-sm">Book</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="empty-state" th:if="${#lists.isEmpty(queue)}">
+                        <p>No patients in standby queue.</p>
+                    </div>
+                </div>
+
+                <!-- Add to Waiting List Form -->
+                <div class="surface-card">
+                    <div class="card-header-clean">
+                        <h3 class="serif-heading" style="font-size: 17px;">Add Patient to Standby</h3>
+                    </div>
+
+                    <form th:action="@{/receptionist/waiting-list/add}" th:object="${waitingRequest}" method="post">
+                        <div class="form-group">
+                            <label class="form-label">Patient *</label>
+                            <select th:field="*{patientId}" class="form-select" required>
+                                <option value="">Select patient...</option>
+                                <option th:each="p : ${patients}"
+                                        th:value="${p.patientId}"
+                                        th:text="${p.fullName + ' (' + p.patientCode + ')'}">Patient</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Requested Doctor *</label>
+                            <select th:field="*{doctorId}" class="form-select" required>
+                                <option value="">Select doctor...</option>
+                                <option th:each="doc : ${doctors}"
+                                        th:value="${doc.doctorId}"
+                                        th:text="${'Dr. ' + doc.fullName + ' (' + doc.specialization + ')'}">Doctor</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Desired Date *</label>
+                            <input type="date" th:field="*{requestedDate}" class="form-control"
+                                   th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Special Notes</label>
+                            <input type="text" th:field="*{notes}" class="form-control" placeholder="e.g. Needs morning slot if someone cancels">
+                        </div>
+
+                        <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">
+                            Add to Waiting Queue
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>

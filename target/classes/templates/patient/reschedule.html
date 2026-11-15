@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Reschedule Consultation')}"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('appointments')}"></aside>
+
+    <div class="main-wrapper">
+        <header th:replace="~{fragments/topbar :: topbar('Reschedule Appointment', 'Patient / Appointments / Reschedule')}"></header>
+
+        <main class="content-container" style="max-width: 760px;">
+            <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+            <div class="surface-card">
+                <div class="card-header-clean">
+                    <div>
+                        <h2 class="serif-heading" style="font-size: 18px;">Select New Consultation Slot</h2>
+                        <p style="font-size: 12.5px;">Your current slot will be released back to the hospital schedule upon confirmation.</p>
+                    </div>
+                </div>
+
+                <div style="background-color: #FAFAF7; border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 20px; font-size: 13px;">
+                    <div><strong>Doctor:</strong> <span th:text="${'Dr. ' + appointment.doctorName}">Dr. Arjun</span></div>
+                    <div><strong>Department:</strong> <span th:text="${appointment.departmentName}">Cardiology</span></div>
+                    <div><strong>Current Booking:</strong> <span th:text="${#temporals.format(appointment.appointmentDate, 'dd MMM yyyy') + ' at ' + #temporals.format(appointment.startTime, 'HH:mm')}">Time</span></div>
+                </div>
+
+                <form th:action="@{/patient/appointments/{id}/reschedule(id=${appointment.appointmentId})}" th:object="${rescheduleRequest}" method="post">
+                    <!-- Doctor ID for dynamic slots lookup -->
+                    <input type="hidden" id="bookingDoctorSelect" th:value="${appointment.doctorId}">
+                    <input type="hidden" id="selectedSlotIdInput" th:field="*{newSlotId}">
+
+                    <div class="form-group">
+                        <label class="form-label">Desired New Date *</label>
+                        <input type="date" id="bookingDateInput" th:field="*{newDate}" class="form-control"
+                               th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Available Time Slots *</label>
+                        <div id="slotSelectionContainer" style="min-height: 80px; background-color: #FAFAF7; border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 16px;">
+                            <p class="form-text">Select a date above to display available slots.</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Reason for Rescheduling</label>
+                        <input type="text" th:field="*{reason}" class="form-control" placeholder="e.g. Schedule conflict">
+                    </div>
+
+                    <div style="display: flex; gap: 12px; margin-top: 24px;">
+                        <button type="submit" class="btn-primary">Confirm New Slot</button>
+                        <a th:href="@{/patient/appointments/{id}(id=${appointment.appointmentId})}" class="btn-secondary">Keep Existing Slot</a>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/medislot.js}"></script>
+</body>
+</html>

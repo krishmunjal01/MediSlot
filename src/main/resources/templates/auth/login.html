@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Sign In')}"></head>
+<body style="background-color: var(--bg-main); display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px;">
+
+<div style="width: 100%; max-width: 440px;">
+    <!-- Brand Header -->
+    <div style="text-align: center; margin-bottom: 28px;">
+        <div style="display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; background-color: var(--primary-accent); color: white; border-radius: var(--radius-sm); font-weight: 700; font-size: 20px; margin-bottom: 12px;">M</div>
+        <h1 class="serif-heading" style="font-size: 24px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px;">MediSlot Operations</h1>
+        <p style="font-size: 13.5px; color: var(--text-secondary);">Hospital Appointment & Patient Care Coordination</p>
+    </div>
+
+    <!-- Login Surface Card -->
+    <div class="surface-card" style="box-shadow: 0 4px 20px rgba(41, 45, 41, 0.05); padding: 32px;">
+        <div th:if="${loginError}" class="alert-banner alert-error" style="margin-bottom: 18px;">
+            <span th:text="${loginError}">Invalid credentials</span>
+        </div>
+        <div th:if="${logoutMessage}" class="alert-banner alert-success" style="margin-bottom: 18px;">
+            <span th:text="${logoutMessage}">Logged out</span>
+        </div>
+        <div th:if="${successMessage}" class="alert-banner alert-success" style="margin-bottom: 18px;">
+            <span th:text="${successMessage}">Success message</span>
+        </div>
+
+        <form th:action="@{/login}" method="post">
+            <div class="form-group">
+                <label for="username" class="form-label">Username or Hospital Email</label>
+                <input type="text" id="username" name="username" class="form-control" placeholder="e.g. admin or dr.arjun" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <label for="password" class="form-label" style="margin-bottom: 0;">Password</label>
+                </div>
+                <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 10px; margin-top: 10px;">
+                Authenticate & Access Portal
+            </button>
+        </form>
+
+        <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-subtle); text-align: center;">
+            <p style="font-size: 13px;">New patient needing care? <a th:href="@{/register}" style="font-weight: 600;">Register online here</a></p>
+        </div>
+    </div>
+
+    <!-- Academic Demonstration Role Quick-Fill Bar (Faculty Convenience) -->
+    <div class="surface-card" style="margin-top: 16px; padding: 18px 20px;">
+        <div style="font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 600; margin-bottom: 10px; text-align: center;">
+            Academic Viva Demo Accounts
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+            <button type="button" class="btn-secondary btn-sm demo-login-fill" data-user="admin" data-pass="admin123" style="justify-content: center;">
+                Admin (Marcus)
+            </button>
+            <button type="button" class="btn-secondary btn-sm demo-login-fill" data-user="dr.arjun" data-pass="doctor123" style="justify-content: center;">
+                Doctor (Dr. Arjun)
+            </button>
+            <button type="button" class="btn-secondary btn-sm demo-login-fill" data-user="receptionist" data-pass="recep123" style="justify-content: center;">
+                Front Desk (Clara)
+            </button>
+            <button type="button" class="btn-secondary btn-sm demo-login-fill" data-user="eleanor" data-pass="patient123" style="justify-content: center;">
+                Patient (Eleanor)
+            </button>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/medislot.js}"></script>
+</body>
+</html>
+

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Department Management')}"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('departments')}"></aside>
+
+    <div class="main-wrapper">
+        <header th:replace="~{fragments/topbar :: topbar('Hospital Clinical Departments', 'Admin / Departments')}"></header>
+
+        <main class="content-container">
+            <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+                <div class="surface-card">
+                    <div class="card-header-clean">
+                        <h2 class="serif-heading" style="font-size: 18px;">Active Departments</h2>
+                        <span class="status-pill status-confirmed" th:text="${departments.size() + ' Departments'}">6 Departments</span>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="medislot-table">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Department Name</th>
+                                    <th>Head Physician</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="dept : ${departments}">
+                                    <td><span class="status-pill status-available" th:text="${dept.code}">CARD</span></td>
+                                    <td><strong th:text="${dept.name}">Cardiology</strong></td>
+                                    <td th:text="${dept.headDoctorName != null ? dept.headDoctorName : '—'}">Dr. Arjun Mehta</td>
+                                    <td style="font-size: 12.5px; color: var(--text-secondary);" th:text="${dept.description}">Heart and cardiovascular care</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Add Department Card -->
+                <div class="surface-card">
+                    <div class="card-header-clean">
+                        <h3 class="serif-heading" style="font-size: 17px;">Add Department</h3>
+                    </div>
+
+                    <form th:action="@{/admin/departments/save}" th:object="${newDepartment}" method="post">
+                        <div class="form-group">
+                            <label class="form-label">Department Name *</label>
+                            <input type="text" th:field="*{name}" class="form-control" placeholder="e.g. Oncology" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Department Code *</label>
+                            <input type="text" th:field="*{code}" class="form-control" placeholder="e.g. ONCO" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Head of Department</label>
+                            <input type="text" th:field="*{headDoctorName}" class="form-control" placeholder="Dr. Jane Doe">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Description</label>
+                            <textarea th:field="*{description}" class="form-control" rows="3" placeholder="Clinical scope and specialties..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">
+                            Create Department
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>

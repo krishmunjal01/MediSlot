@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<header th:fragment="topbar(title, breadcrumb)" class="top-bar">
+    <div class="page-title-area">
+        <div class="page-breadcrumbs" th:text="${breadcrumb != null ? breadcrumb : 'MediSlot Hospital Coordination'}">MediSlot</div>
+        <h1 th:text="${title != null ? title : 'Overview'}">Overview</h1>
+    </div>
+
+    <div class="top-bar-actions">
+        <span style="font-size: 12px; color: var(--text-muted); font-feature-settings: 'tnum';"
+              th:text="${#temporals.format(#temporals.createNow(), 'EEEE, dd MMMM yyyy')}">Date</span>
+    </div>
+</header>
+</body>
+</html>

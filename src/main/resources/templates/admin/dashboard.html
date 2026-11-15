@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Admin Dashboard')}"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('dashboard')}"></aside>
+
+    <div class="main-wrapper">
+        <header th:replace="~{fragments/topbar :: topbar('Hospital Operations Overview', 'Admin Portal / Dashboard')}"></header>
+
+        <main class="content-container">
+            <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+            <!-- Operational Metrics Row -->
+            <div class="metrics-row">
+                <div class="metric-item">
+                    <div class="metric-label">Appointments Today</div>
+                    <div class="metric-value" th:text="${stats.totalAppointmentsToday}">0</div>
+                    <div class="metric-sub">Scheduled for consultation</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-label">Upcoming Bookings</div>
+                    <div class="metric-value" th:text="${stats.upcomingAppointments}">0</div>
+                    <div class="metric-sub">Future confirmed dates</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-label">Active Doctors</div>
+                    <div class="metric-value" th:text="${stats.activeDoctors}">0</div>
+                    <div class="metric-sub">Across 6 hospital departments</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-label">Registered Patients</div>
+                    <div class="metric-value" th:text="${stats.totalRegisteredPatients}">0</div>
+                    <div class="metric-sub">Total database profiles</div>
+                </div>
+            </div>
+
+            <!-- Quick Action Bar -->
+            <div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
+                <a th:href="@{/admin/doctors/new}" class="btn-primary">
+                    <svg style="width: 16px; height: 16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    Add New Doctor
+                </a>
+                <a th:href="@{/admin/schedules}" class="btn-secondary">
+                    <svg style="width: 16px; height: 16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    Manage Schedules
+                </a>
+                <a th:href="@{/admin/technical-demonstration}" class="btn-secondary" style="border-color: var(--primary-accent); color: var(--primary-accent);">
+                    <svg style="width: 16px; height: 16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Traditional vs Spring JDBC Demo
+                </a>
+                <a th:href="@{/admin/oop-demonstration}" class="btn-secondary" style="border-color: var(--primary-accent); color: var(--primary-accent);">
+                    <svg style="width: 16px; height: 16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                    POJO vs Bean Demo
+                </a>
+            </div>
+
+            <!-- Today's Schedule Overview -->
+            <div class="surface-card">
+                <div class="card-header-clean">
+                    <div>
+                        <h2 class="serif-heading" style="font-size: 18px;">Today's Consultations</h2>
+                        <p style="font-size: 12.5px;">Live appointments scheduled across clinic departments for today</p>
+                    </div>
+                    <span class="status-pill status-confirmed" th:text="${todayAppointments.size() + ' Total'}">0 Total</span>
+                </div>
+
+                <div class="table-container" th:if="${not #lists.isEmpty(todayAppointments)}">
+                    <table class="medislot-table">
+                        <thead>
+                            <tr>
+                                <th>Ref #</th>
+                                <th>Time</th>
+                                <th>Patient Name</th>
+                                <th>Assigned Doctor</th>
+                                <th>Department</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="apt : ${todayAppointments}">
+                                <td><strong th:text="${apt.appointmentReference}">APT-001</strong></td>
+                                <td th:text="${#temporals.format(apt.startTime, 'HH:mm') + ' - ' + #temporals.format(apt.endTime, 'HH:mm')}">09:00 - 09:30</td>
+                                <td th:text="${apt.patientName}">Eleanor Vance</td>
+                                <td th:text="${'Dr. ' + apt.doctorName}">Dr. Arjun Mehta</td>
+                                <td th:text="${apt.departmentName}">Cardiology</td>
+                                <td>
+                                    <span class="status-pill"
+                                          th:classappend="'status-' + ${#strings.toLowerCase(#strings.replace(apt.status.name(), '_', '-'))}"
+                                          th:text="${apt.status.label}">Status</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="empty-state" th:if="${#lists.isEmpty(todayAppointments)}">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    <h3>No appointments booked for today yet</h3>
+                    <p>New appointments booked by patients or front desk will appear here in real-time.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>
