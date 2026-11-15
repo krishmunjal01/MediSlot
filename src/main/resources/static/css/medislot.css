@@ -52,7 +52,12 @@ body {
 }
 
 /* Typography */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   color: var(--text-primary);
   font-weight: 600;
   letter-spacing: -0.015em;
@@ -303,7 +308,8 @@ a:hover {
   border-bottom: 1px solid var(--border-subtle);
 }
 
-.card-header-clean h2, .card-header-clean h3 {
+.card-header-clean h2,
+.card-header-clean h3 {
   font-size: 16px;
   font-weight: 600;
 }
@@ -404,13 +410,40 @@ a:hover {
   background-color: currentColor;
 }
 
-.status-booked { background-color: var(--secondary-accent); color: var(--primary-accent); }
-.status-confirmed { background-color: #E2ECE2; color: #2E5338; }
-.status-checked-in { background-color: #E4ECE5; color: #1E4D2B; }
-.status-completed { background-color: #EAEAE6; color: #4B4E47; }
-.status-cancelled { background-color: var(--danger-bg); color: var(--danger); }
-.status-no-show { background-color: var(--warning-bg); color: var(--warning); }
-.status-available { background-color: var(--secondary-accent); color: var(--primary-accent); }
+.status-booked {
+  background-color: var(--secondary-accent);
+  color: var(--primary-accent);
+}
+
+.status-confirmed {
+  background-color: #E2ECE2;
+  color: #2E5338;
+}
+
+.status-checked-in {
+  background-color: #E4ECE5;
+  color: #1E4D2B;
+}
+
+.status-completed {
+  background-color: #EAEAE6;
+  color: #4B4E47;
+}
+
+.status-cancelled {
+  background-color: var(--danger-bg);
+  color: var(--danger);
+}
+
+.status-no-show {
+  background-color: var(--warning-bg);
+  color: var(--warning);
+}
+
+.status-available {
+  background-color: var(--secondary-accent);
+  color: var(--primary-accent);
+}
 
 /* Buttons */
 .btn-primary {
@@ -485,7 +518,8 @@ a:hover {
   margin-bottom: 6px;
 }
 
-.form-control, .form-select {
+.form-control,
+.form-select {
   width: 100%;
   padding: 9px 12px;
   font-size: 13.5px;
@@ -497,7 +531,8 @@ a:hover {
   font-family: inherit;
 }
 
-.form-control:focus, .form-select:focus {
+.form-control:focus,
+.form-select:focus {
   outline: none;
   border-color: var(--primary-accent);
   box-shadow: 0 0 0 3px rgba(71, 107, 86, 0.12);
@@ -626,21 +661,313 @@ a:hover {
   line-height: 1.6;
 }
 
-/* Responsive adjustments */
-@media (max-width: 900px) {
+/* ==============================================================
+   Mobile Navigation, Drawers & Responsive Enhancements
+   ============================================================== */
+
+/* Top Bar Left Container */
+.top-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Mobile Hamburger Button (Hidden on Desktop) */
+.mobile-menu-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background-color: var(--surface);
+  color: var(--text-primary);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.mobile-menu-toggle:hover {
+  background-color: var(--bg-main);
+  border-color: var(--primary-accent);
+}
+
+.mobile-menu-toggle svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Sidebar Header Controls */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar-close-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background-color: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sidebar-close-btn:hover {
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+}
+
+.sidebar-close-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Backdrop for Mobile Drawer */
+.sidebar-backdrop {
+  display: none;
+}
+
+body.no-scroll {
+  overflow: hidden;
+}
+
+/* Responsive Welcome Banner */
+.welcome-banner {
+  background-color: #FAF9F5;
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--primary-accent);
+  border-radius: var(--radius-md);
+  padding: 24px 28px;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  box-shadow: var(--shadow-subtle);
+}
+
+.banner-badge-col {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ==============================================================
+   Media Query: Mobile Devices (Phones, max-width: 768px)
+   ============================================================== */
+@media (max-width: 768px) {
+  /* 1. Offcanvas Sliding Sidebar Drawer */
   .sidebar {
-    width: 70px;
+    width: 280px;
+    max-width: 84vw;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: -290px; /* Off-screen by default */
+    z-index: 1000;
+    transition: left 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: none;
+    border-right: 1px solid var(--border-color);
   }
-  .sidebar .logo-text, .sidebar .logo-tagline, .sidebar .nav-section-title, .sidebar .user-details, .sidebar .nav-item span {
-    display: none;
+
+  .sidebar.open {
+    left: 0;
+    box-shadow: 4px 0 24px rgba(41, 45, 41, 0.2);
   }
-  .sidebar-header {
-    padding: 16px 12px;
+
+
+  .sidebar-close-btn {
+    display: flex;
   }
+
+  /* Dimmed Backdrop */
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background-color: rgba(41, 45, 41, 0.45);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    z-index: 990;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+
+  .sidebar-backdrop.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* 2. Main Wrapper: Full Width */
+
   .main-wrapper {
-    margin-left: 70px;
+    margin-left: 0 !important;
+    width: 100% !important;
+    min-width: 0;
   }
+
+  /* 3. Top Navigation Bar */
+  .top-bar {
+    padding: 0 16px;
+    height: 58px;
+  }
+
+  .mobile-menu-toggle {
+    display: flex;
+  }
+
+  .top-bar-date {
+    display: none !important;
+  }
+
+  .page-title-area h1 {
+    font-size: 16px;
+  }
+
+  .page-breadcrumbs {
+    font-size: 11px;
+  }
+
+  /* 4. Content Area Spacing */
+
   .content-container {
-    padding: 20px;
+    padding: 16px 14px;
+  }
+
+  /* 5. Welcome Banners */
+  .welcome-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 18px 16px;
+    gap: 14px;
+  }
+
+  .welcome-banner .btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .banner-badge-col {
+    text-align: left;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* 6. Dashboard Metrics Grid: 1 Column */
+  .metrics-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .metric-item {
+    padding: 14px 16px;
+  }
+
+  .metric-value {
+    font-size: 22px;
+  }
+
+  /* 7. Surface Cards & Headers */
+  .surface-card {
+    padding: 16px 14px;
+    margin-bottom: 16px;
+  }
+
+  .card-header-clean {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .card-header-clean > div {
+    width: 100%;
+  }
+
+  /* 8. Table Responsiveness & Touch Scroll */
+  .table-container {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+  }
+
+  .medislot-table {
+    min-width: 580px; /* Enables clean horizontal swipe without crunching text */
+  }
+
+  .medislot-table th, .medislot-table td {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  /* 9. Forms & Input Stacking */
+  .form-group {
+    margin-bottom: 14px;
+  }
+
+  .form-control, .form-select {
+    padding: 10px 12px;
+    font-size: 16px !important; /* Prevents auto-zoom on iOS Safari */
+  }
+
+  /* Stack multi-column form grids on phone */
+  [style*="grid-template-columns: 1fr 1fr"],
+  [style*="grid-template-columns: repeat(2, 1fr)"],
+  [style*="grid-template-columns: repeat(3, 1fr)"],
+  [style*="grid-template-columns: 2fr 1fr"],
+  [style*="grid-template-columns: 1fr 2fr"] {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+
+  /* 10. Consultation Slots Grid */
+  .slot-grid {
+    grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+    gap: 8px;
+  }
+
+  .slot-btn {
+    padding: 12px 6px;
+    font-size: 13px;
+    min-height: 44px;
+  }
+
+  /* 11. Buttons & Touch Targets */
+  .btn-primary, .btn-secondary {
+    padding: 10px 14px;
+    font-size: 13.5px;
+    min-height: 40px;
+  }
+}
+/* ==============================================================
+   Media Query: Tablet Devices (769px to 1024px)
+   ============================================================== */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .sidebar {
+    width: 220px;
+  }
+
+  .main-wrapper {
+    margin-left: 220px;
+  }
+
+  .content-container {
+    padding: 24px 20px;
+  }
+
+  .metrics-row {
+    grid-template-columns: repeat(2, 1fr);
   }
 }

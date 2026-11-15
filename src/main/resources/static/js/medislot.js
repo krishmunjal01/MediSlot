@@ -3,6 +3,36 @@
  */
 
 document.addEventListener("DOMContentLoaded", () => {
+    // Mobile Drawer Navigation Toggle
+    const mobileToggle = document.getElementById("mobileMenuToggle");
+    const sidebarClose = document.getElementById("sidebarCloseBtn");
+    const sidebar = document.querySelector(".sidebar");
+    const backdrop = document.getElementById("sidebarBackdrop");
+
+    function openSidebar() {
+        if (sidebar) sidebar.classList.add("open");
+        if (backdrop) backdrop.classList.add("active");
+        document.body.classList.add("no-scroll");
+    }
+
+    function closeSidebar() {
+        if (sidebar) sidebar.classList.remove("open");
+        if (backdrop) backdrop.classList.remove("active");
+        document.body.classList.remove("no-scroll");
+    }
+
+    if (mobileToggle) mobileToggle.addEventListener("click", openSidebar);
+    if (sidebarClose) sidebarClose.addEventListener("click", closeSidebar);
+    if (backdrop) backdrop.addEventListener("click", closeSidebar);
+
+    document.querySelectorAll(".sidebar-nav .nav-item").forEach(item => {
+        item.addEventListener("click", () => {
+            if (window.innerWidth <= 768) {
+                closeSidebar();
+            }
+        });
+    });
+
     // Quick-fill demo credentials on login page
     const demoButtons = document.querySelectorAll(".demo-login-fill");
     demoButtons.forEach(btn => {
