@@ -84,8 +84,17 @@ public class DataInitializer implements CommandLineRunner {
         }
 
         // 2. Check if users table already has data
-        Integer userCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users", Integer.class);
-        if (userCount != null && userCount > 0) {
+        int userCount = 0;
+        try {
+            Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users", Integer.class);
+            if (count != null) {
+                userCount = count;
+            }
+        } catch (Exception e) {
+            log.warn("Could not query users table directly: {}", e.getMessage());
+        }
+
+        if (userCount > 0) {
             log.info("Database already seeded with {} users. Ensuring future slots exist...", userCount);
             ensureFutureSlots();
             return;

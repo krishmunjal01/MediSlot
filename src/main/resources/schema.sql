@@ -4,9 +4,6 @@
 -- Normalized Relational Architecture with Transactional Integrity
 -- ==============================================================
 
-CREATE DATABASE IF NOT EXISTS medislot_db;
-USE medislot_db;
-
 -- 1. Users Table (Core authentication and base user identity)
 CREATE TABLE IF NOT EXISTS users (
     user_id BIGINT AUTO_INCREMENT PRIMARY KEY,
